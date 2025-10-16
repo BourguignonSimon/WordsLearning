@@ -1,3 +1,45 @@
 <resources>
-    <string name="app_name">My Application</string>
+    <string name="app_name">Words Learning</string>
+
+    <!-- Navigation -->
+    <string name="nav_review">Révisions</string>
+    <string name="nav_library">Bibliothèque</string>
+    <string name="nav_add">Ajout</string>
+
+    <!-- Review -->
+    <string name="review_dashboard_title">Plan de révision</string>
+    <string name="review_summary_due">%1$d mot(s) à réviser</string>
+    <string name="review_summary_total">%1$d mot(s) enregistrés</string>
+    <string name="review_option_count_title">Nombre d'options par question : %1$d</string>
+    <string name="review_theme_title">Thèmes</string>
+    <string name="review_theme_empty">Les thèmes seront affichés après l'initialisation des données.</string>
+    <string name="action_start_quiz">Démarrer un quiz</string>
+
+    <!-- Library -->
+    <string name="library_title">Bibliothèque</string>
+    <string name="library_empty_themes">Aucun thème disponible pour le moment.</string>
+    <string name="library_empty_words">Aucun mot pour les thèmes sélectionnés.</string>
+    <string name="library_theme_label">Thème : %1$s</string>
+
+    <!-- Quiz -->
+    <string name="quiz_header">Questions répondues : %1$d</string>
+    <string name="quiz_no_words">Aucun mot à réviser pour le moment.</string>
+    <string name="quiz_back_to_dashboard">Retour</string>
+    <string name="quiz_exit">Quitter le quiz</string>
+    <string name="quiz_next_question">Question suivante</string>
+    <string name="quiz_speak_word">Lire le mot</string>
+    <string name="quiz_correct_answer">Bonne réponse</string>
+    <string name="quiz_feedback_correct">Réponse correcte !</string>
+    <string name="quiz_feedback_incorrect">Réponse incorrecte.</string>
+    <string name="quiz_direction_en_fr">Anglais → Français</string>
+    <string name="quiz_direction_fr_en">Français → Anglais</string>
+
+    <!-- Add Word -->
+    <string name="add_word_title">Ajouter un mot</string>
+    <string name="add_word_english_label">Mot en anglais</string>
+    <string name="add_word_french_label">Traduction française</string>
+    <string name="add_word_theme_label">Thème</string>
+    <string name="add_word_example_label">Phrase exemple (anglais)</string>
+    <string name="add_word_example_fr_label">Phrase exemple (français)</string>
+    <string name="add_word_submit">Enregistrer le mot</string>
 </resources>

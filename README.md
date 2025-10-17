@@ -118,3 +118,13 @@ Lister les améliorations à planifier ensuite (mode arrière‑plan, intégrati
 Prioriser ces actions en indiquant ce qui est indispensable pour la release MVP et ce qui peut être reporté en phase 2+.
 
 Cette formulation devrait permettre au tech‑lead de cibler rapidement les éléments clés du dépôt et de structurer un plan d’actions clair pour livrer un MVP opérationnel, puis de planifier les évolutions ultérieures.
+
+## Configuration locale
+
+Le fichier `local.properties` n’est pas versionné. Avant de lancer une compilation Android Studio ou Gradle, créez‑le si nécessaire et renseignez votre chemin SDK :
+
+```
+sdk.dir=/chemin/vers/votre/Android/Sdk
+```
+
+Pensez également à installer les API Android 35 pour respecter la configuration `compileSdk`/`targetSdk` du projet.

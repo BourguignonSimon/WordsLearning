@@ -1,0 +1,19 @@
+# Gradle
+.gradle/
+build/
+app/build/
+
+# Local configuration
+local.properties
+*.keystore
+*.jks
+
+# IDE files
+.idea/
+*.iml
+.DS_Store
+
+# Generated files
+captures/
+.externalNativeBuild/
+.cxx/

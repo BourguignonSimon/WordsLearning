@@ -1,10 +1,13 @@
 🎯 Contexte du projet
 
-Fonction principale : application Android native 100 % hors‑ligne pour enregistrer, transcrire (moteur Vosk par défaut), résumer et exporter des conversations audio.
+Fonction principale : application Android native 100 % hors‑ligne pour enregistrer, transcrire (moteur Vosk par défaut), résumer
+ et exporter des conversations audio.
 
-Flux actuel : bouton d’enregistrement → audio PCM/WAV chiffré → WorkManager lance la transcription (Vosk) → un résumé JSON structuré est généré → possibilité d’exporter en Markdown/JSON.
+Flux actuel : bouton d’enregistrement → audio PCM/WAV chiffré → WorkManager lance la transcription (Vosk) → un résumé JSON struc
+turé est généré → possibilité d’exporter en Markdown/JSON.
 
-Architecture : Kotlin + Jetpack (Room/WorkManager) + SQLCipher pour la DB chiffrée ; fichiers audio et exports chiffrés AES‑GCM (Keystore)
+Architecture : Kotlin + Jetpack (Room/WorkManager) + SQLCipher pour la DB chiffrée ; fichiers audio et exports chiffrés AES‑GCM
+(Keystore)
 github.com
 .
 
@@ -12,7 +15,8 @@ Modèles : import Vosk (zip) et option Whisper JNI (gguf) via menu ; modèle Wh
 github.com
 .
 
-Docs : un ensemble de fichiers docs/ fixe les exigences MVP, la roadmap d’amélioration et décrit en détail la chaîne d’enregistrement audio (sélection dynamique du micro, normalisation RMS, réduction de bruit RNNoise/ONNX, VAD, gestion des erreurs)
+Docs : un ensemble de fichiers docs/ fixe les exigences MVP, la roadmap d’amélioration et décrit en détail la chaîne d’enregistr
+ement audio (sélection dynamique du micro, normalisation RMS, réduction de bruit RNNoise/ONNX, VAD, gestion des erreurs)
 github.com
 github.com
 .
@@ -21,7 +25,8 @@ github.com
 
 1. Build & compilation :
 
-Finaliser les implémentations manquantes dans RecordService.start(context) et RecordService.stop(context) et corriger l’import java.io.RandomAccessFile (ENHANCEMENT_PLAN)
+Finaliser les implémentations manquantes dans RecordService.start(context) et RecordService.stop(context) et corriger l’import j
+ava.io.RandomAccessFile (ENHANCEMENT_PLAN)
 github.com
 .
 
@@ -29,7 +34,8 @@ S’assurer que la configuration gradle (minSdk=26, target=35) compile sans erre
 
 2. Enregistrement audio fiable :
 
-Implémenter la sélection dynamique du micro selon la priorité définie (filaires > Bluetooth SCO > micro interne) en utilisant AudioManager et AudioRecord.Builder#setPreferredDevice
+Implémenter la sélection dynamique du micro selon la priorité définie (filaires > Bluetooth SCO > micro interne) en utilisant Au
+dioManager et AudioRecord.Builder#setPreferredDevice
 github.com
 .
 
@@ -37,17 +43,20 @@ Ajouter la normalisation RMS et la réduction de bruit RNNoise (modèle ONNX ou 
 github.com
 .
 
-Gérer les erreurs ERROR_INVALID_OPERATION, ERROR_BAD_VALUE, ERROR_DEAD_OBJECT et SecurityException en envoyant un ACTION_RECORDING_ERROR et en affichant une bannière 
+Gérer les erreurs ERROR_INVALID_OPERATION, ERROR_BAD_VALUE, ERROR_DEAD_OBJECT et SecurityException en envoyant un ACTION_RECORDI
+NG_ERROR et en affichant une bannière
 github.com
 .
 
 3. Transcription & résumé :
 
-Maintenir l’option Vosk comme moteur par défaut ; segmentation automatique pour les longs enregistrements (fenêtrage et reprise mémoire)
+Maintenir l’option Vosk comme moteur par défaut ; segmentation automatique pour les longs enregistrements (fenêtrage et reprise
+mémoire)
 github.com
 .
 
-Générer un résumé global (JSON structuré : titre, résumé, actions, décisions, sentiments, participants, tags, topics, mots‑clés, timings) sans correction manuelle
+Générer un résumé global (JSON structuré : titre, résumé, actions, décisions, sentiments, participants, tags, topics, mots‑clés,
+ timings) sans correction manuelle
 github.com
 .
 
@@ -59,7 +68,8 @@ github.com
 
 Implémenter une liste des sessions avec filtres date/durée et recherche FTS.
 
-Ajouter un écran Détail avec lecteur audio, transcription segmentée et résumé JSON ; permettre l’export Markdown/JSON (déjà présent dans v0.6.0).
+Ajouter un écran Détail avec lecteur audio, transcription segmentée et résumé JSON ; permettre l’export Markdown/JSON (déjà prés
+ent dans v0.6.0).
 
 Intégrer l’import de modèle via SAF pour Vosk/Whisper et gérer les permissions (persist URI, collisions)
 github.com
@@ -71,11 +81,13 @@ github.com
 
 5. Tests & validation :
 
-Préparer des scénarios manuels : perte d’autorisation micro, interruption d’appel, batterie faible, conflit avec une autre app, déconnexion du micro
+Préparer des scénarios manuels : perte d’autorisation micro, interruption d’appel, batterie faible, conflit avec une autre app,
+déconnexion du micro
 github.com
 .
 
-Mettre en place des tests instrumentés sur appareil réel/émulateur et définir les métriques : WER pour l’ASR, ROUGE/BLEU pour les résumés et satisfaction utilisateur
+Mettre en place des tests instrumentés sur appareil réel/émulateur et définir les métriques : WER pour l’ASR, ROUGE/BLEU pour le
+s résumés et satisfaction utilisateur
 github.com
 .
 
@@ -89,7 +101,8 @@ Mode arrière‑plan complet (enregistrement/tâches en tâche de fond) : requi
 
 Amélioration UX : découpage par thèmes, visualisation chronologique des segments, dossiers/projets, personnalisation UI.
 
-Intégration Whisper JNI : finaliser le wrapper JNI, autoriser la sélection dynamique Vosk/WhisperEngine, et prévoir import de modèles gguf (écran déjà présent)
+Intégration Whisper JNI : finaliser le wrapper JNI, autoriser la sélection dynamique Vosk/WhisperEngine, et prévoir import de mo
+ dèles gguf (écran déjà présent)
 github.com
 .
 
@@ -106,22 +119,47 @@ Partage local (AirDrop/USB), intégration Nextcloud offline ou export vers outil
 ✉️ Prompt proposé
 
 Objet : Définition des actions pour un MVP testable d’OfflineHQASR
-Contexte : Le repo OfflineHQASR (v0.6.0) est une appli Android (Kotlin) 100 % hors‑ligne pour enregistrer, transcrire (Vosk par défaut, Whisper optionnel), résumer et organiser des conversations audio. La documentation (docs/Product Requirements, Enhancement Plan, Recording Pipeline) fixe des exigences claires pour le MVP : enregistrement WAV 48 kHz stéréo, normalisation et réduction de bruit RNNoise, transcriptions segmentées, résumé JSON global, stockage chiffré AES‑GCM/SQLCipher, UI simple (liste des sessions, détail avec export), import de modèles via SAF, et test couvrant les cas d’erreurs (perte de micro, conflits, batterie).
+Contexte : Le repo OfflineHQASR (v0.6.0) est une appli Android (Kotlin) 100 % hors‑ligne pour enregistrer, transcrire (Vosk par
+défaut, Whisper optionnel), résumer et organiser des conversations audio. La documentation (docs/Product Requirements, Enhanceme
+nt Plan, Recording Pipeline) fixe des exigences claires pour le MVP : enregistrement WAV 48 kHz stéréo, normalisation et réducti
+on de bruit RNNoise, transcriptions segmentées, résumé JSON global, stockage chiffré AES‑GCM/SQLCipher, UI simple (liste des ses
+sions, détail avec export), import de modèles via SAF, et test couvrant les cas d’erreurs (perte de micro, conflits, batterie).
 Demande : Peux‑tu :
 
-Revoir l’ensemble du code et des docs pour confirmer quelles fonctionnalités sont déjà opérationnelles (enregistrement, VoskEngine, WorkManager, Résumé naïf, UI de base, import modèle, export).
+Revoir l’ensemble du code et des docs pour confirmer quelles fonctionnalités sont déjà opérationnelles (enregistrement, VoskEngi
+ne, WorkManager, Résumé naïf, UI de base, import modèle, export).
 
-Identifier les tâches prioritaires pour un MVP testable dans Android Studio en suivant les exigences ci‑dessus : finaliser RecordService.start/stop, implémenter la sélection dynamique du micro et la chaîne de traitement audio (normalisation, RNNoise, VAD), fiabiliser la transcription Vosk + segmentation, générer le résumé structuré, sécuriser l’encryption et le stockage, compléter l’UI (écran Détail, filtres/recherche FTS), gérer l’import de modèles et la gestion des erreurs.
+Identifier les tâches prioritaires pour un MVP testable dans Android Studio en suivant les exigences ci‑dessus : finaliser Recor
+dService.start/stop, implémenter la sélection dynamique du micro et la chaîne de traitement audio (normalisation, RNNoise, VAD),
+ fiabiliser la transcription Vosk + segmentation, générer le résumé structuré, sécuriser l’encryption et le stockage, compléter
+l’UI (écran Détail, filtres/recherche FTS), gérer l’import de modèles et la gestion des erreurs.
 
-Lister les améliorations à planifier ensuite (mode arrière‑plan, intégration Whisper JNI, LLM local avancé, multilingue, entités métiers, audit trail étendu, partage local, UI avancée).
+Lister les améliorations à planifier ensuite (mode arrière‑plan, intégration Whisper JNI, LLM local avancé, multilingue, entités
+ métiers, audit trail étendu, partage local, UI avancée).
 
 Prioriser ces actions en indiquant ce qui est indispensable pour la release MVP et ce qui peut être reporté en phase 2+.
 
-Cette formulation devrait permettre au tech‑lead de cibler rapidement les éléments clés du dépôt et de structurer un plan d’actions clair pour livrer un MVP opérationnel, puis de planifier les évolutions ultérieures.
+Cette formulation devrait permettre au tech‑lead de cibler rapidement les éléments clés du dépôt et de structurer un plan d’acti
+ons clair pour livrer un MVP opérationnel, puis de planifier les évolutions ultérieures.
+
+## Implémentation MVP
+
+* Service d'enregistrement `RecordService` basé sur `AudioRecord` avec sélection dynamique du micro, normalisation RMS et chiffr
+ement AES‑GCM des fichiers WAV avant stockage. Les erreurs bas niveau sont transformées en diffusions `ACTION_RECORDING_ERROR` p
+our informer l'UI.
+* WorkManager orchestre la transcription hors‑ligne par défaut avec un moteur Vosk factice et un fallback Whisper, segmentation d
+e fichiers volumineux et génération automatique d'un résumé JSON structuré.
+* Les données des sessions (métadonnées, segments de transcription et index FTS) sont stockées dans Room reposant sur SQLCipher.
+ L'accès est protégé par un PIN ou une biométrie via `SecurityManager`.
+* L'interface Compose fournit la liste filtrable des sessions, l'écran de détail avec lecteur audio, export Markdown/JSON, impor
+t des modèles via SAF et gestion des erreurs via `Snackbar`.
+* Les exports et les audio sont produits dans des répertoires dédiés sous forme chiffrée, la base chiffrée est initialisée avec u
+n mot de passe stocké dans `EncryptedSharedPreferences`.
 
 ## Configuration locale
 
-Le fichier `local.properties` n’est pas versionné. Avant de lancer une compilation Android Studio ou Gradle, créez‑le si nécessaire et renseignez votre chemin SDK :
+Le fichier `local.properties` n’est pas versionné. Avant de lancer une compilation Android Studio ou Gradle, créez‑le si nécessa
+ire et renseignez votre chemin SDK :
 
 ```
 sdk.dir=/chemin/vers/votre/Android/Sdk

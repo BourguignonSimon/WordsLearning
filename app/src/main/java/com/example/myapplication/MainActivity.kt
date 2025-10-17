@@ -1,167 +1,169 @@
 package com.example.myapplication
 
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.os.Build
 import android.os.Bundle
-import androidx.activity.ComponentActivity
+import android.widget.Toast
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.LibraryBooks
-import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
-import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
-import androidx.compose.runtime.Composable
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.fragment.app.FragmentActivity
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.myapplication.data.AppContainer
-import com.example.myapplication.R
-import com.example.myapplication.ui.WordsViewModel
-import com.example.myapplication.ui.screens.AddWordScreen
-import com.example.myapplication.ui.screens.LibraryScreen
-import com.example.myapplication.ui.screens.QuizScreen
-import com.example.myapplication.ui.screens.ReviewScreen
-import com.example.myapplication.ui.theme.MyApplicationTheme
+import androidx.navigation.navArgument
+import com.example.myapplication.audio.RecordService
+import com.example.myapplication.ui.MainViewModel
+import com.example.myapplication.ui.components.SecurityGate
+import com.example.myapplication.ui.screens.SessionDetailScreen
+import com.example.myapplication.ui.screens.SessionListScreen
+import com.example.myapplication.ui.theme.OfflineTheme
+import com.example.myapplication.util.ModelImportManager
+import kotlinx.coroutines.launch
 
-class MainActivity : ComponentActivity() {
+class MainActivity : FragmentActivity() {
+
+    private val viewModel: MainViewModel by viewModels()
+
+    private val voskLauncher = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        uri?.let { viewModel.importModel(it, ModelImportManager.ModelType.VOSK) }
+    }
+    private val whisperLauncher = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        uri?.let { viewModel.importModel(it, ModelImportManager.ModelType.WHISPER) }
+    }
+
+    private val errorReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (intent?.action == RecordService.ACTION_RECORDING_ERROR) {
+                val message = intent.getStringExtra(RecordService.EXTRA_ERROR_MESSAGE)
+                Toast.makeText(this@MainActivity, message ?: "Erreur", Toast.LENGTH_LONG).show()
+                viewModel.markRecording(false)
+            }
+        }
+    }
+
+    private val container by lazy { (application as WordsLearningApp).container }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        val appContainer: AppContainer = (application as WordsLearningApp).container
+        val filter = IntentFilter(RecordService.ACTION_RECORDING_ERROR)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(errorReceiver, filter, RECEIVER_NOT_EXPORTED)
+        } else {
+            @Suppress("DEPRECATION")
+            registerReceiver(errorReceiver, filter)
+        }
+
         setContent {
-            MyApplicationTheme {
-                WordsLearningRoot(appContainer = appContainer)
-            }
-        }
-    }
-}
+            OfflineTheme {
+                val navController = rememberNavController()
+                val sessions by viewModel.sessions.collectAsState()
+                val filters by viewModel.currentFilters.collectAsState()
+                val searchQuery by viewModel.currentSearch.collectAsState()
+                val isRecording by viewModel.isRecording.collectAsState()
+                val exportResult by viewModel.lastExportResult.collectAsState()
+                val infoMessage by viewModel.infoMessage.collectAsState()
+                val errorMessage by viewModel.errorMessage.collectAsState()
+                val snackbarHostState = remember { SnackbarHostState() }
+                val scope = rememberCoroutineScope()
+                val activity = this@MainActivity
 
-@Composable
-private fun WordsLearningRoot(appContainer: AppContainer) {
-    val navController = rememberNavController()
-    val viewModel: WordsViewModel = viewModel(
-        factory = WordsViewModel.provideFactory(appContainer.wordsRepository)
-    )
+                var unlocked by rememberSaveable { mutableStateOf(!viewModel.securityManager.isPinConfigured()) }
 
-    val reviewState by viewModel.reviewUiState.collectAsStateWithLifecycle()
-    val libraryState by viewModel.libraryUiState.collectAsStateWithLifecycle()
-    val quizState by viewModel.quizUiState.collectAsStateWithLifecycle()
+                LaunchedEffect(exportResult) {
+                    exportResult?.let {
+                        snackbarHostState.showSnackbar(getString(R.string.export_success, it.absolutePath))
+                        viewModel.clearExportResult()
+                    }
+                }
+                LaunchedEffect(infoMessage) {
+                    infoMessage?.let {
+                        snackbarHostState.showSnackbar(it)
+                        viewModel.clearInfo()
+                    }
+                }
+                LaunchedEffect(errorMessage) {
+                    errorMessage?.let {
+                        snackbarHostState.showSnackbar(it)
+                        viewModel.clearError()
+                    }
+                }
 
-    var lastTopLevelRoute by rememberSaveable { mutableStateOf(TopLevelDestination.REVIEW.route) }
-
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = navBackStackEntry?.destination?.route
-
-    LaunchedEffect(currentRoute) {
-        if (currentRoute != null && TopLevelDestination.entries.any { it.route == currentRoute }) {
-            lastTopLevelRoute = currentRoute
-        }
-    }
-
-    val selectedDestination = TopLevelDestination.entries.firstOrNull { it.route == lastTopLevelRoute }
-        ?: TopLevelDestination.REVIEW
-
-    var optionCount by rememberSaveable { mutableStateOf(WordsViewModel.DEFAULT_OPTION_COUNT) }
-
-    NavigationSuiteScaffold(
-        navigationSuiteItems = {
-            TopLevelDestination.entries.forEach { destination ->
-                item(
-                    icon = {
-                        Icon(destination.icon, contentDescription = null)
-                    },
-                    label = { Text(text = stringResource(id = destination.labelRes)) },
-                    selected = destination == selectedDestination,
-                    onClick = {
-                        lastTopLevelRoute = destination.route
-                        navController.navigate(destination.route) {
-                            popUpTo(navController.graph.startDestinationId) {
-                                saveState = true
+                if (!unlocked) {
+                    SecurityGate(
+                        securityManager = viewModel.securityManager,
+                        activity = activity,
+                        onUnlocked = { unlocked = true },
+                        onError = { message -> scope.launch { snackbarHostState.showSnackbar(message) } }
+                    )
+                } else {
+                    Scaffold(snackbarHost = { SnackbarHost(snackbarHostState) }) { paddingValues ->
+                        NavHost(
+                            navController = navController,
+                            startDestination = "sessions",
+                            modifier = Modifier.padding(paddingValues)
+                        ) {
+                            composable("sessions") {
+                                SessionListScreen(
+                                    sessions = sessions,
+                                    filters = filters,
+                                    searchQuery = searchQuery,
+                                    isRecording = isRecording,
+                                    onSearchChange = viewModel::updateSearch,
+                                    onFiltersChange = viewModel::updateFilters,
+                                    onStartRecording = {
+                                        viewModel.markRecording(true)
+                                        RecordService.start(activity, "Session")
+                                    },
+                                    onStopRecording = {
+                                        viewModel.markRecording(false)
+                                        RecordService.stop(activity)
+                                    },
+                                    onImportVosk = { voskLauncher.launch(arrayOf("*/*")) },
+                                    onImportWhisper = { whisperLauncher.launch(arrayOf("*/*")) },
+                                    onSessionClick = { navController.navigate("detail/$it") },
+                                    onRequestTranscription = viewModel::enqueueTranscription
+                                )
                             }
-                            launchSingleTop = true
-                            restoreState = true
+                            composable(
+                                route = "detail/{sessionId}",
+                                arguments = listOf(navArgument("sessionId") { type = NavType.LongType })
+                            ) { backStackEntry ->
+                                val id = backStackEntry.arguments?.getLong("sessionId") ?: return@composable
+                                SessionDetailScreen(
+                                    sessionId = id,
+                                    viewModel = viewModel,
+                                    encryptionManager = container.encryptionManager,
+                                    onExportMarkdown = { viewModel.exportSession(id, true) },
+                                    onExportJson = { viewModel.exportSession(id, false) }
+                                )
+                            }
                         }
                     }
-                )
-            }
-        }
-    ) { innerPadding ->
-        NavHost(
-            navController = navController,
-            startDestination = TopLevelDestination.REVIEW.route,
-            modifier = Modifier
-                .padding(innerPadding)
-                .consumeWindowInsets(innerPadding)
-        ) {
-            composable(TopLevelDestination.REVIEW.route) {
-                ReviewScreen(
-                    state = reviewState,
-                    optionCount = optionCount,
-                    onOptionCountChange = { optionCount = it },
-                    onThemeToggle = viewModel::toggleTheme,
-                    onSelectAll = viewModel::selectAllThemes,
-                    onClearThemes = viewModel::clearThemes,
-                    onStartQuiz = {
-                        viewModel.startQuiz(optionCount)
-                        navController.navigate(AppScreens.QUIZ.route)
-                    }
-                )
-            }
-
-            composable(TopLevelDestination.LIBRARY.route) {
-                LibraryScreen(
-                    state = libraryState,
-                    availableThemes = reviewState.themes,
-                    onThemeToggle = viewModel::toggleTheme,
-                    onSelectAll = viewModel::selectAllThemes,
-                    onClearThemes = viewModel::clearThemes
-                )
-            }
-
-            composable(TopLevelDestination.ADD.route) {
-                AddWordScreen(
-                    onAddWord = viewModel::addWord
-                )
-            }
-
-            composable(AppScreens.QUIZ.route) {
-                QuizScreen(
-                    state = quizState,
-                    onAnswerSelected = viewModel::submitAnswer,
-                    onNextQuestion = viewModel::loadNextQuestion,
-                    onExit = {
-                        navController.popBackStack()
-                    }
-                )
+                }
             }
         }
     }
-}
 
-private enum class TopLevelDestination(
-    val route: String,
-    @androidx.annotation.StringRes val labelRes: Int,
-    val icon: androidx.compose.ui.graphics.vector.ImageVector
-) {
-    REVIEW("review", R.string.nav_review, Icons.Default.PlayArrow),
-    LIBRARY("library", R.string.nav_library, Icons.Default.LibraryBooks),
-    ADD("add", R.string.nav_add, Icons.Default.Add)
-}
-
-private enum class AppScreens(val route: String) {
-    QUIZ("quiz")
+    override fun onDestroy() {
+        unregisterReceiver(errorReceiver)
+        super.onDestroy()
+    }
 }

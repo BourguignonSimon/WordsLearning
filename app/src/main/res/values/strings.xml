@@ -1,45 +1,54 @@
 <resources>
-    <string name="app_name">Words Learning</string>
+    <string name="app_name">Offline HQ ASR</string>
+    <string name="notification_recording_title">Enregistrement en cours</string>
+    <string name="notification_recording_description">Touchez pour revenir à l'application</string>
+    <string name="notification_channel_recording">Enregistrement audio sécurisé</string>
 
-    <!-- Navigation -->
-    <string name="nav_review">Révisions</string>
-    <string name="nav_library">Bibliothèque</string>
-    <string name="nav_add">Ajout</string>
+    <string name="action_start_recording">Démarrer</string>
+    <string name="action_stop_recording">Arrêter</string>
+    <string name="action_import_vosk">Importer un modèle Vosk</string>
+    <string name="action_import_whisper">Importer un modèle Whisper</string>
+    <string name="action_export_markdown">Exporter en Markdown</string>
+    <string name="action_export_json">Exporter en JSON</string>
+    <string name="action_filter">Filtres</string>
+    <string name="action_relaunch_transcription">Relancer</string>
 
-    <!-- Review -->
-    <string name="review_dashboard_title">Plan de révision</string>
-    <string name="review_summary_due">%1$d mot(s) à réviser</string>
-    <string name="review_summary_total">%1$d mot(s) enregistrés</string>
-    <string name="review_option_count_title">Nombre d'options par question : %1$d</string>
-    <string name="review_theme_title">Thèmes</string>
-    <string name="review_theme_empty">Les thèmes seront affichés après l'initialisation des données.</string>
-    <string name="action_start_quiz">Démarrer un quiz</string>
+    <string name="label_search">Rechercher</string>
+    <string name="label_duration_min">Durée min (min)</string>
+    <string name="label_duration_max">Durée max (min)</string>
+    <string name="label_start_date">Date de début</string>
+    <string name="label_end_date">Date de fin</string>
+    <string name="label_no_sessions">Aucune session enregistrée pour le moment.</string>
+    <string name="label_unlock_prompt">Entrez votre code PIN</string>
+    <string name="label_set_pin">Définir un PIN</string>
+    <string name="label_pin">PIN</string>
+    <string name="label_confirm_pin">Confirmez le PIN</string>
+    <string name="label_unlock">Déverrouiller</string>
+    <string name="label_enable_biometrics">Utiliser la biométrie</string>
+    <string name="label_model_destination">Modèle importé : %1$s</string>
+    <string name="label_transcription_pending">Transcription en attente</string>
+    <string name="label_transcription_processing">Transcription en cours…</string>
+    <string name="label_transcription_completed">Transcription prête</string>
+    <string name="label_transcription_failed">Transcription en échec</string>
 
-    <!-- Library -->
-    <string name="library_title">Bibliothèque</string>
-    <string name="library_empty_themes">Aucun thème disponible pour le moment.</string>
-    <string name="library_empty_words">Aucun mot pour les thèmes sélectionnés.</string>
-    <string name="library_theme_label">Thème : %1$s</string>
+    <string name="detail_title_transcription">Transcription</string>
+    <string name="detail_title_summary">Résumé JSON</string>
+    <string name="detail_title_metadata">Métadonnées</string>
+    <string name="detail_label_duration">Durée : %1$d min</string>
+    <string name="detail_label_started_at">Démarré le : %1$s</string>
+    <string name="detail_label_tags">Tags : %1$s</string>
+    <string name="detail_label_topics">Sujets : %1$s</string>
+    <string name="detail_label_participants">Participants : %1$s</string>
+    <string name="detail_empty_summary">Résumé non disponible.</string>
 
-    <!-- Quiz -->
-    <string name="quiz_header">Questions répondues : %1$d</string>
-    <string name="quiz_no_words">Aucun mot à réviser pour le moment.</string>
-    <string name="quiz_back_to_dashboard">Retour</string>
-    <string name="quiz_exit">Quitter le quiz</string>
-    <string name="quiz_next_question">Question suivante</string>
-    <string name="quiz_speak_word">Lire le mot</string>
-    <string name="quiz_correct_answer">Bonne réponse</string>
-    <string name="quiz_feedback_correct">Réponse correcte !</string>
-    <string name="quiz_feedback_incorrect">Réponse incorrecte.</string>
-    <string name="quiz_direction_en_fr">Anglais → Français</string>
-    <string name="quiz_direction_fr_en">Français → Anglais</string>
+    <string name="player_play">Lecture</string>
+    <string name="player_pause">Pause</string>
+    <string name="player_stop">Arrêter</string>
 
-    <!-- Add Word -->
-    <string name="add_word_title">Ajouter un mot</string>
-    <string name="add_word_english_label">Mot en anglais</string>
-    <string name="add_word_french_label">Traduction française</string>
-    <string name="add_word_theme_label">Thème</string>
-    <string name="add_word_example_label">Phrase exemple (anglais)</string>
-    <string name="add_word_example_fr_label">Phrase exemple (français)</string>
-    <string name="add_word_submit">Enregistrer le mot</string>
+    <string name="export_success">Export enregistré dans %1$s</string>
+    <string name="export_error">Échec de l'export : %1$s</string>
+    <string name="import_success">Import réussi</string>
+    <string name="import_error">Import impossible : %1$s</string>
+    <string name="pin_mismatch">Les codes PIN ne correspondent pas.</string>
+    <string name="pin_invalid">PIN invalide.</string>
 </resources>

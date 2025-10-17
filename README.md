@@ -1,130 +1,29 @@
-🎯 Contexte du projet
+1. Clarification du Besoin (Contraintes du MVP)
+Le cœur du MVP se concentre sur une seule paire de langues (Anglais $\leftrightarrow$ Français) et une seule source de données principale (les 2000 mots les plus courants).
 
-Fonction principale : application Android native 100 % hors‑ligne pour enregistrer, transcrire (moteur Vosk par défaut), résumer et exporter des conversations audio.
+Composant	MVP Requis	Impact sur le Projet
+Paire de Langues	Anglais (LE) $\leftrightarrow$ Français (LM)	La fonctionnalité de gestion multilingue peut être simplifiée (ou reportée) pour la Phase 1.
+Données Initiales	2000 Mots les Plus Courants en Anglais	Nécessite de trouver/compiler une liste de haute qualité (Mot + Traduction + Thème + Phrase Type, si possible) et de l'intégrer en dur (fichier JSON/CSV) dans l'application.
+Organisation	Organisation par Thématique (Ex: Nourriture, Voyage, Maison)	Le modèle de données doit inclure un champ Thème pour chaque mot, permettant le filtrage et la création de sets de révision spécifiques.
+F1 : Intégration	Fonctionnalité d'Importation Reportée	L'accent peut être mis sur l'importation automatique au premier lancement (les 2000 mots) et la saisie manuelle. Les formats JSON/XML/Excel ne sont pas la priorité du MVP.
+F2 & F3 : Quizz QCM	Fonctionnel (5-10 options)	Logique de génération de distracteurs assurée par le pool des 2000 mots, organisés par thème (pour des distracteurs thématiquement proches).
+2. Identification des Informations Supplémentaires (Focus MVP)
+Le focus est désormais sur l'acquisition et la structuration des données et l'implémentation du SRS.
 
-Flux actuel : bouton d’enregistrement → audio PCM/WAV chiffré → WorkManager lance la transcription (Vosk) → un résumé JSON structuré est généré → possibilité d’exporter en Markdown/JSON.
+Domaine	Question(s) Clé(s)	Impact sur le Projet
+Acquisition des 2000 Mots	Avez-vous déjà une liste structurée (CSV/JSON) de ces 2000 mots avec traduction, thématique et phrases types ?	Si non, une étape de recherche de données est nécessaire, potentiellement via Google Search.
+Définition de "Thématique"	Quelles sont les catégories thématiques souhaitées (Ex: A1, B2, 50 thèmes précis) ?	Détermine la structure du champ Set/Thème dans la base de données.
+MVP Simplification F1	Faut-il complètement retirer l'importation de fichiers (JSON/XML/Excel) du MVP pour se concentrer uniquement sur les 2000 mots et la saisie manuelle ?	Simplifie massivement la phase de développement initiale. (Recommandé)
+Prononciation (TTS)	La qualité de la voix TTS native d'Android est-elle suffisante, ou doit-on envisager une API externe (plus coûteuse) pour une meilleure qualité ?	Le TTS natif est idéal pour le MVP.
+3. Définition Complète du Projet (Version MVP Simple)
+Objectif du MVP
+Développer la version minimale de l'application capable de démontrer la valeur des quiz QCM et du SRS, en utilisant le set de 2000 mots anglais/français comme unique source de contenu initial.
 
-Architecture : Kotlin + Jetpack (Room/WorkManager) + SQLCipher pour la DB chiffrée ; fichiers audio et exports chiffrés AES‑GCM (Keystore)
-github.com
-.
-
-Modèles : import Vosk (zip) et option Whisper JNI (gguf) via menu ; modèle Whisper sélectionné via BuildConfig.USE_WHISPER
-github.com
-.
-
-Docs : un ensemble de fichiers docs/ fixe les exigences MVP, la roadmap d’amélioration et décrit en détail la chaîne d’enregistrement audio (sélection dynamique du micro, normalisation RMS, réduction de bruit RNNoise/ONNX, VAD, gestion des erreurs)
-github.com
-github.com
-.
-
-✅ Priorités MVP (à implémenter pour un test Android Studio)
-
-1. Build & compilation :
-
-Finaliser les implémentations manquantes dans RecordService.start(context) et RecordService.stop(context) et corriger l’import java.io.RandomAccessFile (ENHANCEMENT_PLAN)
-github.com
-.
-
-S’assurer que la configuration gradle (minSdk=26, target=35) compile sans erreurs et que l’option Vosk fonctionne par défaut.
-
-2. Enregistrement audio fiable :
-
-Implémenter la sélection dynamique du micro selon la priorité définie (filaires > Bluetooth SCO > micro interne) en utilisant AudioManager et AudioRecord.Builder#setPreferredDevice
-github.com
-.
-
-Ajouter la normalisation RMS et la réduction de bruit RNNoise (modèle ONNX ou noise‑gate fallback) avant l’écriture WAV
-github.com
-.
-
-Gérer les erreurs ERROR_INVALID_OPERATION, ERROR_BAD_VALUE, ERROR_DEAD_OBJECT et SecurityException en envoyant un ACTION_RECORDING_ERROR et en affichant une bannière 
-github.com
-.
-
-3. Transcription & résumé :
-
-Maintenir l’option Vosk comme moteur par défaut ; segmentation automatique pour les longs enregistrements (fenêtrage et reprise mémoire)
-github.com
-.
-
-Générer un résumé global (JSON structuré : titre, résumé, actions, décisions, sentiments, participants, tags, topics, mots‑clés, timings) sans correction manuelle
-github.com
-.
-
-Respecter l’objectif de traitement hors‑ligne ≤ 30 min pour 60 min d’audio
-github.com
-.
-
-4. Organisation & UX :
-
-Implémenter une liste des sessions avec filtres date/durée et recherche FTS.
-
-Ajouter un écran Détail avec lecteur audio, transcription segmentée et résumé JSON ; permettre l’export Markdown/JSON (déjà présent dans v0.6.0).
-
-Intégrer l’import de modèle via SAF pour Vosk/Whisper et gérer les permissions (persist URI, collisions)
-github.com
-.
-
-Assurer la protection par PIN/biométrie et le chiffrement AES‑GCM (audio, exports) et SQLCipher (DB)
-github.com
-.
-
-5. Tests & validation :
-
-Préparer des scénarios manuels : perte d’autorisation micro, interruption d’appel, batterie faible, conflit avec une autre app, déconnexion du micro
-github.com
-.
-
-Mettre en place des tests instrumentés sur appareil réel/émulateur et définir les métriques : WER pour l’ASR, ROUGE/BLEU pour les résumés et satisfaction utilisateur
-github.com
-.
-
-Inclure un outil interne pour vérifier la qualité audio (SNR, bruit)
-github.com
-.
-
-🔜 Améliorations post‑MVP (phase 2 et suivantes)
-
-Mode arrière‑plan complet (enregistrement/tâches en tâche de fond) : requiert gestion fine du service et des permissions.
-
-Amélioration UX : découpage par thèmes, visualisation chronologique des segments, dossiers/projets, personnalisation UI.
-
-Intégration Whisper JNI : finaliser le wrapper JNI, autoriser la sélection dynamique Vosk/WhisperEngine, et prévoir import de modèles gguf (écran déjà présent)
-github.com
-.
-
-LLM local avancé : remplacer le résumé naif par un petit modèle (LLama‑3 ou Phi‑3) pour actions/décisions plus précises.
-
-Support multilingue (EN/FR) et traduction ; entités et relations métiers (CRM/dossiers patients) prévues pour V2.
-
-Audit trail avancé : journal signé (hash SHA‑256 + horodatage) garantissant l’intégrité des données
-github.com
-.
-
-Partage local (AirDrop/USB), intégration Nextcloud offline ou export vers outils métiers.
-
-✉️ Prompt proposé
-
-Objet : Définition des actions pour un MVP testable d’OfflineHQASR
-Contexte : Le repo OfflineHQASR (v0.6.0) est une appli Android (Kotlin) 100 % hors‑ligne pour enregistrer, transcrire (Vosk par défaut, Whisper optionnel), résumer et organiser des conversations audio. La documentation (docs/Product Requirements, Enhancement Plan, Recording Pipeline) fixe des exigences claires pour le MVP : enregistrement WAV 48 kHz stéréo, normalisation et réduction de bruit RNNoise, transcriptions segmentées, résumé JSON global, stockage chiffré AES‑GCM/SQLCipher, UI simple (liste des sessions, détail avec export), import de modèles via SAF, et test couvrant les cas d’erreurs (perte de micro, conflits, batterie).
-Demande : Peux‑tu :
-
-Revoir l’ensemble du code et des docs pour confirmer quelles fonctionnalités sont déjà opérationnelles (enregistrement, VoskEngine, WorkManager, Résumé naïf, UI de base, import modèle, export).
-
-Identifier les tâches prioritaires pour un MVP testable dans Android Studio en suivant les exigences ci‑dessus : finaliser RecordService.start/stop, implémenter la sélection dynamique du micro et la chaîne de traitement audio (normalisation, RNNoise, VAD), fiabiliser la transcription Vosk + segmentation, générer le résumé structuré, sécuriser l’encryption et le stockage, compléter l’UI (écran Détail, filtres/recherche FTS), gérer l’import de modèles et la gestion des erreurs.
-
-Lister les améliorations à planifier ensuite (mode arrière‑plan, intégration Whisper JNI, LLM local avancé, multilingue, entités métiers, audit trail étendu, partage local, UI avancée).
-
-Prioriser ces actions en indiquant ce qui est indispensable pour la release MVP et ce qui peut être reporté en phase 2+.
-
-Cette formulation devrait permettre au tech‑lead de cibler rapidement les éléments clés du dépôt et de structurer un plan d’actions clair pour livrer un MVP opérationnel, puis de planifier les évolutions ultérieures.
-
-## Configuration locale
-
-Le fichier `local.properties` n’est pas versionné. Avant de lancer une compilation Android Studio ou Gradle, créez‑le si nécessaire et renseignez votre chemin SDK :
-
-```
-sdk.dir=/chemin/vers/votre/Android/Sdk
-```
-
-Pensez également à installer les API Android 35 pour respecter la configuration `compileSdk`/`targetSdk` du projet.
+Fonctionnalités Techniques Clés du MVP
+Catégorie	Fonctionnalité	Description Technique
+Contenu	Initialisation BD	Au premier lancement, l'application charge les 2000 mots (avec Traduction, Thème) à partir d'un fichier de données interne.
+Quizz	Quizz Anglais $\leftrightarrow$ Français	Implémentation des QCM (F2 et F3) avec 5 à 10 options. La base de distracteurs est limitée aux 2000 mots.
+Logique SRS	Fonctionnel Basique	Le SRS doit enregistrer le succès/échec de l'utilisateur et ajuster la date de la Prochaine Révision selon un intervalle de base (par exemple : 1 jour $\rightarrow$ 3 jours $\rightarrow$ 7 jours $\rightarrow$ 30 jours).
+UX/UI	Filtrage Thématique	L'utilisateur doit pouvoir sélectionner un ou plusieurs thèmes parmi les 2000 mots pour commencer une session de révision.
+Core Android	TTS	Utilisation de l'API Android Text-to-Speech pour la lecture des mots anglais.
+Gestion des Données (MVP)	Saisie Manuelle	L'utilisateur peut ajouter de nouveaux mots manuellement (un à un) s'il le souhaite. L'importation de fichiers structurés est exclue du MVP.

@@ -10,6 +10,12 @@ import kotlinx.coroutines.flow.first
 
 private val Context.seedDataStore: DataStore<Preferences> by preferencesDataStore(name = "words_learning_seed")
 
+/**
+ * Assure le chargement unique des données seed dans la base Room.
+ *
+ * Un flag stocké dans DataStore évite toute ré-initialisation accidentelle,
+ * ce qui rend cette classe idempotente au redémarrage de l'application.
+ */
 class WordsInitializer(
     private val context: Context,
     private val repository: WordsRepository,

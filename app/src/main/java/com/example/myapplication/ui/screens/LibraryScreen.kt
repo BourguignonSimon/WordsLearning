@@ -29,6 +29,9 @@ import com.example.myapplication.R
 import com.example.myapplication.model.Word
 import com.example.myapplication.ui.WordsViewModel
 
+/**
+ * Bibliothèque filtrable qui liste les mots en fonction des thèmes sélectionnés.
+ */
 @Composable
 fun LibraryScreen(
     state: WordsViewModel.LibraryUiState,
@@ -74,6 +77,7 @@ fun LibraryScreen(
     }
 }
 
+/** Rangée de filtres thématiques affichée en haut de la bibliothèque. */
 @Composable
 private fun ThemeFilterRow(
     themes: List<String>,
@@ -97,6 +101,7 @@ private fun ThemeFilterRow(
     }
 }
 
+/** Liste verticale des mots formatés pour une lecture rapide. */
 @Composable
 private fun WordList(words: List<Word>) {
     if (words.isEmpty()) {
@@ -112,6 +117,7 @@ private fun WordList(words: List<Word>) {
     }
 }
 
+/** Présentation détaillée d'un mot (traduction + exemples). */
 @Composable
 private fun WordRow(word: Word) {
     Column {

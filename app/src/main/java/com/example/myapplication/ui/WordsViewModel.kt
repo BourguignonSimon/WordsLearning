@@ -15,6 +15,12 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+/**
+ * ViewModel orchestrant les flux de la base et la logique de quiz.
+ *
+ * Il expose trois états immuables pour les écrans Review, Library et Quiz, tout en
+ * encapsulant les interactions utilisateur (sélection de thèmes, réponses, ajout de mot).
+ */
 class WordsViewModel(
     private val repository: WordsRepository
 ) : ViewModel() {
@@ -59,20 +65,27 @@ class WordsViewModel(
     private val _quizState = MutableStateFlow(QuizUiState(isLoading = true))
     val quizUiState: StateFlow<QuizUiState> = _quizState
 
+    /** Ajoute ou retire un thème des filtres actifs. */
     fun toggleTheme(theme: String) {
         selectedThemes.update { current ->
             if (current.contains(theme)) current - theme else current + theme
         }
     }
 
+    /** Réinitialise totalement la sélection des thèmes. */
     fun clearThemes() {
         selectedThemes.value = emptySet()
     }
 
+    /** Sélectionne tous les thèmes disponibles. */
     fun selectAllThemes() {
         selectedThemes.value = themesFlow.value.toSet()
     }
 
+    /**
+     * Prépare la première question du quiz avec le nombre d'options souhaité.
+     * Les questions sont générées à la demande par le [WordsRepository].
+     */
     fun startQuiz(optionCount: Int = DEFAULT_OPTION_COUNT) {
         viewModelScope.launch {
             _quizState.update { it.copy(isLoading = true, lastAnswerCorrect = null) }
@@ -87,6 +100,7 @@ class WordsViewModel(
         }
     }
 
+    /** Recharge une nouvelle question tout en conservant les paramètres courants. */
     fun loadNextQuestion() {
         val optionCount = _quizState.value.optionCount
         if (optionCount <= 0) return
@@ -103,6 +117,7 @@ class WordsViewModel(
         }
     }
 
+    /** Enregistre la réponse de l'utilisateur et met à jour la progression SRS. */
     fun submitAnswer(optionId: Int) {
         val currentQuestion = _quizState.value.currentQuestion ?: return
         val selectedOption = currentQuestion.options.firstOrNull { it.id == optionId } ?: return
@@ -118,6 +133,7 @@ class WordsViewModel(
         }
     }
 
+    /** Crée un nouveau mot utilisateur si les champs principaux sont remplis. */
     fun addWord(
         english: String,
         french: String,

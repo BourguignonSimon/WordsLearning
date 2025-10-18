@@ -37,6 +37,9 @@ import com.example.myapplication.ui.screens.QuizScreen
 import com.example.myapplication.ui.screens.ReviewScreen
 import com.example.myapplication.ui.theme.MyApplicationTheme
 
+/**
+ * Activité hôte Compose : installe la navigation et fournit les dépendances au graphe.
+ */
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,6 +53,9 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+/**
+ * Conteneur principal regroupant la navigation entre les onglets et le quiz.
+ */
 @Composable
 private fun WordsLearningRoot(appContainer: AppContainer) {
     val navController = rememberNavController()

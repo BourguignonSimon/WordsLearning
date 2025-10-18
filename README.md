@@ -1,29 +1,85 @@
-1. Clarification du Besoin (Contraintes du MVP)
-Le cœur du MVP se concentre sur une seule paire de langues (Anglais $\leftrightarrow$ Français) et une seule source de données principale (les 2000 mots les plus courants).
+## Words Learning – MVP
 
-Composant	MVP Requis	Impact sur le Projet
-Paire de Langues	Anglais (LE) $\leftrightarrow$ Français (LM)	La fonctionnalité de gestion multilingue peut être simplifiée (ou reportée) pour la Phase 1.
-Données Initiales	2000 Mots les Plus Courants en Anglais	Nécessite de trouver/compiler une liste de haute qualité (Mot + Traduction + Thème + Phrase Type, si possible) et de l'intégrer en dur (fichier JSON/CSV) dans l'application.
-Organisation	Organisation par Thématique (Ex: Nourriture, Voyage, Maison)	Le modèle de données doit inclure un champ Thème pour chaque mot, permettant le filtrage et la création de sets de révision spécifiques.
-F1 : Intégration	Fonctionnalité d'Importation Reportée	L'accent peut être mis sur l'importation automatique au premier lancement (les 2000 mots) et la saisie manuelle. Les formats JSON/XML/Excel ne sont pas la priorité du MVP.
-F2 & F3 : Quizz QCM	Fonctionnel (5-10 options)	Logique de génération de distracteurs assurée par le pool des 2000 mots, organisés par thème (pour des distracteurs thématiquement proches).
-2. Identification des Informations Supplémentaires (Focus MVP)
-Le focus est désormais sur l'acquisition et la structuration des données et l'implémentation du SRS.
+Cette application Android livre le MVP complet de **Words Learning**, un outil de révision du vocabulaire Anglais ⇄ Français basé sur un système de répétition espacée (SRS) et des quiz à choix multiples.
 
-Domaine	Question(s) Clé(s)	Impact sur le Projet
-Acquisition des 2000 Mots	Avez-vous déjà une liste structurée (CSV/JSON) de ces 2000 mots avec traduction, thématique et phrases types ?	Si non, une étape de recherche de données est nécessaire, potentiellement via Google Search.
-Définition de "Thématique"	Quelles sont les catégories thématiques souhaitées (Ex: A1, B2, 50 thèmes précis) ?	Détermine la structure du champ Set/Thème dans la base de données.
-MVP Simplification F1	Faut-il complètement retirer l'importation de fichiers (JSON/XML/Excel) du MVP pour se concentrer uniquement sur les 2000 mots et la saisie manuelle ?	Simplifie massivement la phase de développement initiale. (Recommandé)
-Prononciation (TTS)	La qualité de la voix TTS native d'Android est-elle suffisante, ou doit-on envisager une API externe (plus coûteuse) pour une meilleure qualité ?	Le TTS natif est idéal pour le MVP.
-3. Définition Complète du Projet (Version MVP Simple)
-Objectif du MVP
-Développer la version minimale de l'application capable de démontrer la valeur des quiz QCM et du SRS, en utilisant le set de 2000 mots anglais/français comme unique source de contenu initial.
+Le code Kotlin/Compose suit les bonnes pratiques Android (architecture en couches, Room, DataStore, ViewModel + StateFlow) pour rester lisible et facilement extensible. L'application fonctionne immédiatement dans Android Studio : le premier lancement injecte automatiquement un corpus de 2000 mots regroupés par thèmes.
 
-Fonctionnalités Techniques Clés du MVP
-Catégorie	Fonctionnalité	Description Technique
-Contenu	Initialisation BD	Au premier lancement, l'application charge les 2000 mots (avec Traduction, Thème) à partir d'un fichier de données interne.
-Quizz	Quizz Anglais $\leftrightarrow$ Français	Implémentation des QCM (F2 et F3) avec 5 à 10 options. La base de distracteurs est limitée aux 2000 mots.
-Logique SRS	Fonctionnel Basique	Le SRS doit enregistrer le succès/échec de l'utilisateur et ajuster la date de la Prochaine Révision selon un intervalle de base (par exemple : 1 jour $\rightarrow$ 3 jours $\rightarrow$ 7 jours $\rightarrow$ 30 jours).
-UX/UI	Filtrage Thématique	L'utilisateur doit pouvoir sélectionner un ou plusieurs thèmes parmi les 2000 mots pour commencer une session de révision.
-Core Android	TTS	Utilisation de l'API Android Text-to-Speech pour la lecture des mots anglais.
-Gestion des Données (MVP)	Saisie Manuelle	L'utilisateur peut ajouter de nouveaux mots manuellement (un à un) s'il le souhaite. L'importation de fichiers structurés est exclue du MVP.
+---
+
+## Fonctionnalités principales
+
+- **Tableau de bord de révision** : compteur des mots dus, sélection des thèmes et paramétrage du nombre d'options (5 à 10) par question.
+- **Quiz adaptatif** : questions alternant traduction EN→FR et FR→EN, distracteurs thématiques, synthèse vocale (TTS) intégrée et feedback immédiat.
+- **Bibliothèque filtrable** : consultation des mots par thème, exemples bilingues et statistiques SRS.
+- **Ajout manuel de mots** : formulaire complet pour enrichir la base de vocabulaire.
+- **Initialisation automatique** : ingestion unique des 2000 mots depuis `res/raw/initial_words.json` grâce à DataStore + Room.
+
+---
+
+## Architecture
+
+| Couche | Rôle | Fichier clé |
+| --- | --- | --- |
+| UI (Jetpack Compose) | Écrans `Review`, `Quiz`, `Library`, `Add` orchestrés par Navigation Compose. | `app/src/main/java/com/example/myapplication/ui/screens/`
+| ViewModel | Regroupe l'état UI (StateFlow), déclenche les actions utilisateur et expose l'API utilisée par les écrans. | `ui/WordsViewModel.kt`
+| Repository | Logique métier : génération de quiz, progression SRS, accès Room. | `data/WordsRepository.kt`
+| Base de données | Stockage des mots et des statistiques (Room). | `data/local/WordsDatabase.kt`
+| Initialisation | Chargement des données seed (JSON → objets → Room). | `data/SeedWordLoader.kt`, `data/WordsInitializer.kt`
+
+Chaque fichier inclut des commentaires KDoc décrivant son rôle pour faciliter la prise en main.
+
+---
+
+## Prérequis
+
+1. **Android Studio Koala Feature Drop ou plus récent** avec le SDK Android 35 installé.
+2. **JDK 17** (installé automatiquement avec Android Studio).
+3. **Émulateur ou appareil** sous Android 8.0 (API 26) minimum.
+
+---
+
+## Installation et exécution
+
+1. Cloner ce dépôt puis l'ouvrir dans Android Studio (`File > Open...`).
+2. Laisser Android Studio synchroniser Gradle (les dépendances sont gérées via `gradle/libs.versions.toml`).
+3. Créer ou sélectionner un périphérique virtuel (Pixel 6 / API 33 recommandé) ou brancher un appareil physique.
+4. Cliquer sur **Run ▶** pour lancer l'application.
+5. Au premier démarrage, patienter pendant l'initialisation de la base (quelques secondes maximum). Les mots, thèmes et statistiques se mettront ensuite à jour automatiquement.
+
+### Lancement en ligne de commande
+
+```bash
+./gradlew assembleDebug
+```
+
+> ℹ️ Les tâches qui exécutent les tests unitaires/instrumentés nécessitent que la variable `ANDROID_HOME` ou le fichier `local.properties` pointe vers un SDK Android valide.
+
+---
+
+## Structure des données
+
+- **`initial_words.json`** : contient 2000 enregistrements structurés (`english`, `french`, `theme`, `example`, `example_french`).
+- Les mots ajoutés par l'utilisateur sont persistés dans `words_learning.db` via Room.
+- Les intervalles SRS par défaut : 1 → 3 → 7 → 30 jours, avec ajustement automatique en fonction des bonnes/mauvaises réponses.
+
+---
+
+## Tests et qualité
+
+- Architecture testable (Repository et ViewModel isolés).
+- Linters Gradle/Compose disponibles (`./gradlew lint`, `./gradlew ktlint` si ajouté).
+- Lancement des tests unitaires : `./gradlew testDebugUnitTest` (SDK requis).
+
+---
+
+## Personnalisation rapide
+
+- **Nouveau thème** : modifier ou ajouter un champ `theme` dans `initial_words.json`.
+- **Intervalles SRS** : adapter la liste `srsIntervalsDays` dans `WordsRepository`.
+- **Nombre d'options par défaut** : mettre à jour `WordsViewModel.DEFAULT_OPTION_COUNT`.
+
+---
+
+## Licence
+
+Projet livré dans le cadre du MVP Words Learning. Utilisation interne ou prototypage libre.

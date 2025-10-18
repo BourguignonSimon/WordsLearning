@@ -31,6 +31,9 @@ import androidx.compose.ui.unit.dp
 import com.example.myapplication.R
 import com.example.myapplication.ui.WordsViewModel
 
+/**
+ * Tableau de bord principal : résumé SRS, réglage du quiz et sélection des thèmes.
+ */
 @Composable
 fun ReviewScreen(
     state: WordsViewModel.ReviewUiState,
@@ -72,6 +75,7 @@ fun ReviewScreen(
     }
 }
 
+/** Affiche les statistiques principales (mots dus / total). */
 @Composable
 private fun ReviewSummaryCard(state: WordsViewModel.ReviewUiState) {
     Card(
@@ -91,6 +95,7 @@ private fun ReviewSummaryCard(state: WordsViewModel.ReviewUiState) {
     }
 }
 
+/** Slider pour définir le nombre d'options par question. */
 @Composable
 private fun OptionCountSelector(
     optionCount: Int,
@@ -112,6 +117,7 @@ private fun OptionCountSelector(
     }
 }
 
+/** Liste de chips permettant d'activer/désactiver les filtres de thèmes. */
 @Composable
 private fun ThemeSelector(
     state: WordsViewModel.ReviewUiState,

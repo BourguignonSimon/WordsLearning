@@ -11,6 +11,12 @@ import kotlinx.coroutines.flow.map
 import kotlin.math.max
 import kotlin.math.min
 
+/**
+ * Couche de domaine centralisant la logique métier autour des mots :
+ * - flux Room pour lister thèmes et mots,
+ * - génération des questions de quiz (options, direction, distracteurs),
+ * - progression du SRS (calcul des intervalles et statistiques).
+ */
 class WordsRepository(
     private val wordDao: WordDao
 ) {
@@ -63,6 +69,10 @@ class WordsRepository(
         return wordDao.getUpcomingWords(themes.toList(), limit, hasThemes).map { it.toModel() }
     }
 
+    /**
+     * Construit une question prête pour l'UI en choisissant un mot dû (ou prochain)
+     * puis en générant les distracteurs et l'énoncé adapté à la direction choisie.
+     */
     suspend fun generateQuestion(
         themes: Set<String>,
         optionCount: Int
@@ -124,6 +134,10 @@ class WordsRepository(
         }
     }
 
+    /**
+     * Met à jour les statistiques SRS d'un mot à la suite d'une réponse.
+     * Le pas SRS est augmenté/diminué et la prochaine date de révision recalculée.
+     */
     suspend fun recordAnswer(word: Word, isCorrect: Boolean, answeredAt: Long = System.currentTimeMillis()) {
         val current = wordDao.getWordById(word.id) ?: return
         val newStep = if (isCorrect) {
@@ -143,6 +157,9 @@ class WordsRepository(
         wordDao.update(updated)
     }
 
+    /**
+     * Ajoute un mot personnalisé saisi par l'utilisateur et prêt pour la révision.
+     */
     suspend fun addWord(
         english: String,
         french: String,

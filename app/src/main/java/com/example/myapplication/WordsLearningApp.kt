@@ -7,6 +7,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 
+/**
+ * Application racine qui installe l'IoC [AppContainer] et déclenche l'initialisation
+ * asynchrone de la base Room avec le jeu de 2000 mots.
+ */
 class WordsLearningApp : Application() {
 
     lateinit var container: AppContainer

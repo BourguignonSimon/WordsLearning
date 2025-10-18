@@ -40,6 +40,10 @@ import com.example.myapplication.model.QuizOption
 import com.example.myapplication.ui.WordsViewModel
 import java.util.Locale
 
+/**
+ * Écran de quiz complet : gère l'état de chargement, l'affichage des questions et la
+ * lecture audio via TTS.
+ */
 @Composable
 fun QuizScreen(
     state: WordsViewModel.QuizUiState,
@@ -125,6 +129,9 @@ fun QuizScreen(
     }
 }
 
+/**
+ * Carte principale affichant l'énoncé, les options et le feedback d'une question.
+ */
 @Composable
 private fun QuizQuestionCard(
     prompt: String,
@@ -181,6 +188,7 @@ private fun QuizQuestionCard(
     }
 }
 
+/** En-tête avec le bouton de lecture TTS. */
 @Composable
 private fun RowHeader(
     prompt: String,
@@ -203,6 +211,7 @@ private fun RowHeader(
     }
 }
 
+/** Bouton d'option de quiz avec mise en avant de la bonne réponse. */
 @Composable
 private fun QuizOptionButton(
     option: QuizOption,
@@ -234,6 +243,7 @@ private fun QuizOptionButton(
     }
 }
 
+/** Message de feedback affiché après la réponse. */
 @Composable
 private fun FeedbackRow(lastAnswerCorrect: Boolean?) {
     if (lastAnswerCorrect == null) return

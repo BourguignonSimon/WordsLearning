@@ -7,6 +7,10 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
+/**
+ * Lit le fichier JSON embarqué contenant les mots seed et le transforme en objets
+ * Kotlin prêtes à être insérés dans la base.
+ */
 class SeedWordLoader(
     private val context: Context,
     @RawRes private val dataResId: Int = R.raw.initial_words,

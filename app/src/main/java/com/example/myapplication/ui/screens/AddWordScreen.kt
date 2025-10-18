@@ -21,6 +21,9 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.example.myapplication.R
 
+/**
+ * Formulaire contrôlé permettant d'ajouter un nouveau mot personnalisé.
+ */
 @Composable
 fun AddWordScreen(
     onAddWord: (english: String, french: String, theme: String, example: String?, exampleFrench: String?) -> Unit,
